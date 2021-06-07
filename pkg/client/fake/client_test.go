@@ -141,6 +141,25 @@ var _ = Describe("Fake client", func() {
 			Expect(list.Items).To(HaveLen(2))
 		})
 
+		It("should be able to List using unstructured list on unstructured objects", func() {
+			By("Creating an object of an unregistered type")
+			item := &unstructured.Unstructured{}
+			item.SetAPIVersion("v1")
+			item.SetKind("Endpoints")
+			item.SetName("test-endpoints")
+			item.SetNamespace("ns1")
+			err := cl.Create(context.Background(), item)
+			Expect(err).To(BeNil())
+
+			By("Listing all endpoints in a namespace")
+			list := &unstructured.UnstructuredList{}
+			list.SetAPIVersion("v1")
+			list.SetKind("EndpointsList")
+			err = cl.List(context.Background(), list, client.InNamespace("ns1"))
+			Expect(err).To(BeNil())
+			Expect(list.Items).To(HaveLen(1))
+		})
+
 		It("should be able to Create an unregistered type using unstructured", func() {
 			item := &unstructured.Unstructured{}
 			item.SetAPIVersion("custom/v1")
